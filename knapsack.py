@@ -4,22 +4,24 @@ import math
 
 # Parse our data from .txt
 # Read all the data from the file
-readFile = open('mknap.txt','r').readlines()
+readFile = open('sento1.txt', 'r').readlines()
 params = readFile[0]
 #print(yes.split())
+goRaise = False
 
 # Number of bags
-nBags = 30
+#nBags = 30
 nBags = int(params[1:3])
-#print(nBags)
+print(nBags)
 
 # Dimension number, number items
 totalI = int(params[4:6])
-#print(totalI)
+print(totalI)
 
 readVal = []
 valuesList = []  # Values the same size as items
-lines = int(totalI/10)
+
+lines = int(np.round(totalI/10, decimals=0))
 for i in range(1, lines+1):
    readVal.append(readFile[i])
 
@@ -29,8 +31,11 @@ for i in range(len(readVal)):
     values.append(list(map(int, valuesList[i].split())))
 
 values = np.array(values).flatten()
+#values = [item for sublist in values for item in sublist]
+#values = np.array(values)
+print(values)
 
-lines = int(nBags/10)
+lines = int(np.round(nBags/10, decimals=0))
 readCon = []
 cons = []
 for i in range(7, lines+7):
@@ -43,21 +48,27 @@ for i in range(len(readCon)):
     max_weight.append(list(map(int, cons[i].split())))
 
 max_weight = np.array(max_weight).flatten()
-#print(npCons)
+print(max_weight)
 
 readWeights = []
 weightList = []
-lines = int((nBags*totalI)/10)
+lines = int(np.round((nBags*totalI/10), decimals=0))
+print(lines)
 for i in range(10, lines+10):
     readWeights.append(readFile[i])
-# 30 x 60 constraints
+# nBags * totalI constraints
 weights = []
 for i in range(len(readWeights)):
     weightList.append(readWeights[i].strip('\n'))
     weights.append(list(map(int, weightList[i].split())))
 
 weights = np.array(weights).flatten()
+#weights = [item for sublist in weights for item in sublist]
+#weights = np.array(weights)
+#print(weights)
 weights = np.split(weights, nBags)
+
+#print(weights)
 
 # end read data
 
@@ -66,25 +77,32 @@ weights = np.split(weights, nBags)
 np.set_printoptions(precision=3, suppress=True)
 
 # Population Size
-size = 100
+size = 50
 
-# How regularly the flies are dispersed
-disturbance_threshold = 0.1
+# How regularly the flies are dispersed initially
+disturbance_threshold = 0.01
 
-def fitness(i): # Fitness for each fly
-    fly_fitness = 0
+
+#maximum_profit_poss = np.sum(values)
+#print(maximum_profit_poss)
+
+FE = 0
+
+def fitness(i, alpha): # Fitness for each fly
+    FE += 1
     sum_weights = []
     np.around(population[i][:], 0, roundedP)  # Rounded fly values
     roundedP.astype(int)
     #print(roundedP)
     sum_values = np.sum((roundedP[:]) * (values[:]))  # Values are always the same for each bag
     fly_fitness = sum_values
+    # Perhaps we could have a dynamic fitness function?
     for n in range(0, nBags):  # For each bag, check the weights
         sum_weights.append(np.sum((roundedP[:])*(weights[n][:])))  # Constraints are different for each bag
         if sum_weights[n] > max_weight[n]:  # If sum of the weights for that bag > the relevant capacity
-            fly_fitness = 0
+            fly_fitness = fly_fitness*alpha
 
-    return fly_fitness  # Fitness is always a reflection of the values (change this?)
+    return fly_fitness  # Minimisation function
 
 
 #target values (ideal solution) = 7772
@@ -101,7 +119,7 @@ for i in range(len(population)):
 roundedP = np.zeros(totalI)
 
 
-# Because the algorithm is stochastic sometimes it is nice to record the best solution 
+# Because the algorithm is stochastic sometimes it is nice to record the best solution
 all_time_best = np.zeros_like(population[0])
 all_time_best_score = 0
 
@@ -109,18 +127,28 @@ all_time_best_score = 0
 best_neighbour = np.zeros_like(population[0])
 
 
+ # Passed profit = 6000 for the first time with 1000 iterations
+
+# number of chunks
+#divisor = 14
+#chunkSize = totalI//divisor  # Our new number of dimensions for updating
+#print(chunkSize)
+
 # How many iterations of optimisation we want to compute
-iteration_amount = 1000  # Passed profit = 6000 for the first time with 1000 iterations
+iteration_amount = 0
 
-divisor = 15  # Our new number of dimensions
-chunks = totalI//divisor
-print(chunks)
+alpha = 0.7
 
-for _ in range(iteration_amount):
+# Vector of best profits
+best_profits = np.zeros(100000)
+
+
+while True:
+    iteration_amount += 1
     # Compute the fitnesses for each fly
     fitnesses = np.zeros(len(population))
     for i in range(len(population)):
-        fitnesses[i] = fitness(i)
+        fitnesses[i] = fitness(i, alpha)
 
     # Which flies index has the highest value?
     swarms_best_index = np.argmax(fitnesses)
@@ -132,10 +160,35 @@ for _ in range(iteration_amount):
     if np.amax(fitnesses) >= all_time_best_score:
         all_time_best_score = np.amax(fitnesses)
         np.around(swarms_best, 0, all_time_best)
+        np.append(best_profits, all_time_best_score)
         #all_time_best = swarms_best
 
-    # All the random dice rolls we will make for every 'dimension' in each member of the population with a normal distribution
-    dr = np.random.normal(0.0, 1.0, divisor)
+    # All the random dice rolls we will make for every 'dimension' in each member of the population with a normal distribution or uniform
+    #if best_profits[iteration_amount] == best_profits[iteration_amount-1000]:
+    #    disturbance_threshold = 0.0
+
+    
+    alpha -= 0.0001
+    #disturbance_threshold += 0.000001
+    if (np.round(alpha, 2) < 0.99 and goRaise == False):
+       # print(np.round(alpha, 2))
+        alpha -= 0.00005
+        disturbance_threshold += 0.000001
+
+    #if np.round(alpha, 2) > 0.99:
+    #    goRaise = False
+    #    disturbance_threshold -= 0.000001
+
+    elif goRaise:
+        alpha += 0.00005
+
+    elif np.round(alpha, 2) <= 0.01:
+        print(np.round(alpha, 2))
+        goRaise = True
+
+
+    dr = np.random.uniform(0.0, 1.0, population.shape)
+
 
     # For each fly in the swarm
     for i, p in enumerate(population):
@@ -145,50 +198,76 @@ for _ in range(iteration_amount):
         right = (i + 1) if i is not (len(population) - 1) else 0
 
         # Here is the best scoring neighbouring fly
-        best_neighbour = population[left] if fitnesses[left] > fitnesses[right] else population[right]
+        # Search in 4 to the left and to the right to find best
+        '''
+        if fitnesses[left-3] > fitnesses[right] and fitnesses[right-1] and fitnesses[right-2] and fitnesses[right-3]:
+            best_neighbour = population[left-3]
+        elif fitnesses[left-3] <= fitnesses[right] and fitnesses[right-1] and fitnesses[right-2] and fitnesses[right-3]:
+            best_neighbour = population[right-3]
+        
+        if fitnesses[left-2] > fitnesses[right] and fitnesses[right-1] and fitnesses[right-2] and fitnesses[right-3]:
+            best_neighbour = population[left-2]
+        elif fitnesses[left-2] <= fitnesses[right] and fitnesses[right-1] and fitnesses[right-2] and fitnesses[right-3]:
+            best_neighbour = population[right-2]
+        '''
+        if fitnesses[left-1] > fitnesses[right] and fitnesses[right-1] and fitnesses[right-2]:
+            best_neighbour = population[left-1]
+        elif fitnesses[left-1] <= fitnesses[right] and fitnesses[right-1] and fitnesses[right-2]:
+            best_neighbour = population[right-1]
+        elif fitnesses[left] > fitnesses[right] and fitnesses[right-1] and fitnesses[right-2]:
+            best_neighbour = population[left]
+        elif fitnesses[left] <= fitnesses[right] and fitnesses[right-1] and fitnesses[right-2]:
+            best_neighbour = population[right]
+
+        #best_neighbour = population[left] if fitnesses[left] > fitnesses[right] else population[right]
+
+        #best_neighbour = population[left-3] if (fitnesses[left-3] > fitnesses[right] and fitnesses[right-1] and fitnesses[right-2] and fitnesses[right-3]) else population[right-3]
+
+
 
         # For each element comprising the fly
         # Could I bypass this with dimensionality reduction?
 
         #p = np.array([1, 0, 1, 0, 1, 1, 1, 0])
 
-        ld = []
-        ld = np.split(p, divisor)
+        #ld = []
+        #ld = np.split(p, divisor)
 
-        for j in range(0, divisor): # Store a new array of less dimensions than totalI and update on new dims
-            ld[j] = ld[j].dot(1 << np.arange(ld[j].size)[::-1])  # bit shift conversion of float binary values
-            #print(ld[j])
-
+        # For each element comprising the fly
+        for x in range(len(p)):
             # If the roll computed earlier is lower than the threshold, re-init the fly, else, update
             # fly to best neighbour and move it a random amount towards the swarms best fly.
-            if dr[j] < disturbance_threshold:
-                ld[j] = np.random.uniform(0.0, math.pow(2, chunks)-2)  # Max value for binary -> decimal (itemsI / divisor) | restrict search space?
-                #ld[j] = np.random.uniform(0.0, math.pow(2, (totalI//divisor)))
+            if dr[i][x] < disturbance_threshold:
+                p[x] = np.random.uniform(0.0, 1.0)
             else:
-                update = swarms_best[j] - best_neighbour[j]
-                #update = best_neighbour[j]
-                ld[j] = np.random.uniform(0.0, 1.0) * update
-
-            # convert back to our original dimensions to get fitnesses
-            ld[j] = int(np.round(ld[j], decimals=0))
-            #ld[j] = math.floor(ld[j])
-            # binary dims for every decimal dim after update
-            p[(j*chunks):(j+1)*chunks] = np.fromstring(np.binary_repr(ld[j], width=chunks), dtype='S1').astype(int)
+                update = swarms_best[x] - best_neighbour[x]
+                p[x] = best_neighbour[x] + np.random.uniform(0.0, 1.0) * update
         #print(p)
 
-# Get the final fitnesses
-fitnesses = np.zeros(len(population))
-for i in range(len(population)):
-    fitnesses[i] = fitness(i)
+    # Get the final fitnesses
+    fitnesses = np.zeros(len(population))
+    for i in range(len(population)):
+        fitnesses[i] = fitness(i, alpha)
 
-# Get the best fly
-swarms_best_index = np.argmax(fitnesses)
-swarms_best_value = np.amax(fitnesses)
-swarms_best = population[swarms_best_index]
+    # Get the best fly
+    swarms_best_index = np.argmax(fitnesses)
+    swarms_best_value = np.amax(fitnesses)
+    swarms_best = population[swarms_best_index]
 
-print(fitnesses)
-print(swarms_best_index)
-print('best profit ever:  ', all_time_best_score)
-print('best fly ever:  ', all_time_best)
-#print('c best profit: ', swarms_best_value)
-#print('c best fly: ', swarms_best)
+    best_at_iteration = [0]
+    i = 0
+    if iteration_amount % 100 == 0:
+        best_at_iteration.append(all_time_best_score)
+        if best_at_iteration[i] == best_at_iteration[i - 1]:
+            disturbance_threshold = disturbance_threshold / 2
+        i = i + 1
+        print('alpha: ', alpha)
+        print('dt: ', disturbance_threshold)
+        print('iteration no:  ', iteration_amount)
+        print('best profit ever:  ', all_time_best_score)
+        print('best solution: ', all_time_best)
+        print(fitnesses)
+        #print(swarms_best_index)
+        #print('best fly ever:  ', all_time_best)
+    #print('c best profit: ', swarms_best_value)
+    #print('c best fly: ', swarms_best)
