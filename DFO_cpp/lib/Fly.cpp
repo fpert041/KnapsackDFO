@@ -25,7 +25,7 @@ Fly::Fly(std::vector<double> inPos, GlobalParam* p_context){ // CONSTRUCTOR_2
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
 
-const std::vector<double>& Fly::getPos(){ // get the vector ("of coordinates") of the fly's position (in the search space)
+std::vector<double>& Fly::getPos(){ // get the vector ("of coordinates") of the fly's position (in the search space)
     return pos;
 }
 
@@ -37,7 +37,7 @@ const double Fly::getPos(int n) { //overloaded function to get the value of a si
 
 //------------------------------------------------------------------------------------
 
-const std::vector<double> Fly::getExPos() { // get the vector of the previous position ("coordinates")
+std::vector<double>& Fly::getExPos() { // get the vector of the previous position ("coordinates")
     return exPos;
 }
 
