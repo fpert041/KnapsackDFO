@@ -22,6 +22,8 @@ private:
     std::mt19937 gen; //Standard mersenne_twister_engine seeded with rd()
     std::uniform_real_distribution<> dis;  // Each call to dis(gen) will generates a new random double
     
+    unsigned int evalsCounter;
+    
     double ran; // random number set when an object of this type is initialise
     
     double offset = -0;
@@ -56,6 +58,10 @@ public:
     string getNeighbourTopology(); // get the neighbouring topology
     
     void setLeader(std::vector<double> newF); // set the leader of the swarm
+    
+    int getEvalsCounter(); // get counter of calls to evaluation function
+    
+    void setEvalsCounter(int newEC); // set counter of calls to evaluation function
     
     // ********************* ONLY FOR CHILDREN *********************
     

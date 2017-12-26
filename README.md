@@ -112,6 +112,10 @@ There are "setter" and "getter" methods  you can use to change these and other p
 
 -- set the leader of the swarm externally using a vector of doubles
 
+`setEvalsCounter(int newEC)`
+
+ -- set counter of calls to evaluation function (evaluation purposes)
+
  - - -
 
  `void setNumNeighbours(int num);`
@@ -169,3 +173,8 @@ There are "setter" and "getter" methods  you can use to change these and other p
  `std::string getDtRandMode()`
 
  -- get the type of randomness governing the disturbance
+ 
+ `int getEvalsCounter()`
+ 
+  -- get counter of calls to evaluation function
+ 

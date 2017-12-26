@@ -1,3 +1,9 @@
+//
+//  Utilis.cpp
+//  wk2_DFO
+//
+//  Created by Francesco Perticarari on 11/10/2017.
+//
 
 #include "../include/Utilis.hpp"
 #include <memory>
@@ -16,6 +22,7 @@ Utilis::Utilis(){
     
     em = SPHERE; // defaults the evaluation method to SPHERE
     ntt = RING; // defaults the way neighbours are linked with to RING TOPOLOGY (ntt = neighbour topology type)
+    evalsCounter = 0;
 }
 
 Utilis::Utilis(std::function<double(std::vector<double>&)> fitness_func){
@@ -26,6 +33,7 @@ Utilis::Utilis(std::function<double(std::vector<double>&)> fitness_func){
     em = CUSTOM; // defaults the evaluation method to CUSTOM
     eval_custom_fitness_func.operator=(fitness_func); // store provided fitness funciton into a variable
     ntt = RING; // defaults the way neighbours are linked with to RING TOPOLOGY
+    evalsCounter = 0;
 }
 
 //------------------------------------------------------------------------------------
@@ -48,6 +56,7 @@ void Utilis::setNeighbourTopology(NeighbouringTopologyType nt){
 /* Evaluate fly with position vector 'flyPos' using the DEFAULT fitness function (as indicated by the value of the 'em' varable (enum: EvaluationMethod) */
 
 const double Utilis::evaluate(vector<double>& flyPos){
+    evalsCounter++;
     switch (em) {
         case CUSTOM:
             evaluationFunctionName = "Custom Fitness Function";
@@ -67,6 +76,7 @@ const double Utilis::evaluate(vector<double>& flyPos){
 // Overridden method: Evaluate the fitness of a certain Fly using the PROVIDED fitness function
 
 const double Utilis::evaluate(vector<double>& flyPos, EvaluationMethod fit_func_id){
+    evalsCounter++;
     EvaluationMethod oldEm = em;
     em = fit_func_id;
     double e = evaluate(flyPos);
@@ -426,6 +436,21 @@ void Utilis::setLeader(std::vector<double> newF){
 }
 
 //------------------------------------------------------------------------------------
+
+
+int Utilis::getEvalsCounter(){
+    return evalsCounter;
+} // get counter of calls to evaluation function
+
+
+//------------------------------------------------------------------------------------
+
+
+void Utilis::setEvalsCounter(int newEC){
+    evalsCounter = newEC;
+} // set counter of calls to evaluation function
+
+//------------------------------------------------------------------------------------
 // PRIVATE METHODS
 //------------------------------------------------------------------------------------
 
@@ -441,6 +466,4 @@ double Utilis::eval_sphere(std::vector<double>& flyPos){
     evaluationFunctionName = "SPHERE";
     return a;
 }
-
-
 

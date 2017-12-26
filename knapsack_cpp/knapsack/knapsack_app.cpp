@@ -144,18 +144,18 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
                                 
                                 double errC = 0;
                                 for(int i = 0; i<numKnaps; ++i){
-                                    if(sumConst[i] > knap_capacity[i]) errC += 1.0;
+                                    if(sumConst[i] > knap_capacity[i]) errC += 10.0;
                                 }
                                 errC /= numKnaps;
                                 
                                 double errW = double(maxWeight - sumWeights)/maxWeight;
                                 
-                                double fitness = errC*(weightVsConstRatio) + errW*(1.0 - weightVsConstRatio);
+                                double fitness = errC*(weightVsConstRatio) + errW;
                                 
                                 //if (N<0) fitness += 100.0; // Only useful if I don't constrain the swarm (which I do)
                                 //if (N>pow(2,numObjects)) fitness += 100.0 // ''
                                 
-                                return fitness*100.;
+                                return fitness*10.;
                             }
                             );
         
@@ -420,7 +420,8 @@ void Dfo_knap::report(int& i, vector<double>& bestPos, int& bestMaxWeight, vecto
     cout << "\n";
     cout << probID << ", ";
 
-    std::cout << "cycle: " << i <<  "\n";
+    std::cout << "cycle: " << i <<  ", ";
+    std::cout << "CALLS to FIT. FUNC.: " << dfo->getEvalsCounter() <<  "\n";
     std::cout << "algo: " << (dfo->getDemocracy() ? "Best Neighbour" : "Swarm's Best") <<  ", ";
     std::cout << "greed/safety ratio: " << weightVsConstRatio << "\n";
     std::cout << "pop. size: " << dfo->getPopSize() << ", ";
