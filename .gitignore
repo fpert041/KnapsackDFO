@@ -12,7 +12,7 @@
 *.xcbkptlist
 *.xcworkspace
 *.pbxproj
-
+*.DS_Store
 *.app
 *.o
 *.png
