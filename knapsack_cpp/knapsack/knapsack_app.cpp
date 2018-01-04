@@ -201,7 +201,7 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
     dfo->setConstrainPos(true);
     
     // set neighbours to check per side
-    dfo->setNumNeighbours(6);
+    dfo->setNumNeighbours(9);
     
     // set up a populatin size of 100
     dfo->setPopSize(popSize);
@@ -340,7 +340,8 @@ void Dfo_knap::run() {
             break;
         }
     }
-    
+    int finI = dfo->getFEAllowed()-1;
+    report(finI, bestPos, bestMaxWeight, testCons);
 }
 
 
