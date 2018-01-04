@@ -44,8 +44,8 @@ int main(int argc, const char * argv[]) {
     //------------
     // SETUP
     
-    unsigned int set = 44; // from 1 to 48 (1)(2)(22)(30) (43)(44)(45)
-    bool isHardProblem = false; //Sent 01, 02, Weish 12, 20 = hard // Pb 4,5,6 = not hard
+    unsigned int set = 2; // from 1 to 48 (1)(2)(22)(30) (43)(44)(45)
+    bool isHardProblem = true; //Sent 01, 02, Weish 12, 20 = hard // Pb 4,5,6 = not hard
     
     //Dfo_knap knap;
     unique_ptr<Dfo_knap> knap (new Dfo_knap(reader.problems[set-1]));
