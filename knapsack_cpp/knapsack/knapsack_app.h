@@ -38,14 +38,10 @@ class DimensionsPerFeatureError: public exception
 };
 
 class Dfo_knap {
-    // variable that will hold the DFO algorithm components
-    unique_ptr<DFO> dfo = unique_ptr<DFO>(new DFO());
-    
     vector<int> knap_capacity;
     int numKnaps;
     vector<int> weights;
     vector<vector<int>> constraints;
-    int optimalWight;
     double weightVsConstRatio = 0.75; // the higher this value, the more importance we will give to the weight (profit)
     // -if too high, we will probably push flies to exceed the knapsack max capacities
     
@@ -54,7 +50,6 @@ class Dfo_knap {
     vector<int> maxConsts;
     
     Problem* pProblemData = nullptr;
-    string probID = "";
     
     bool reduc = false;
     int dimsPerFeature = 4; // keep it less than 17 AND a power of 2!
@@ -71,6 +66,13 @@ class Dfo_knap {
     void adapt(float& newDt, float& targetDt, int& counter, double& wvsc, int& bestMaxWeight, vector<double>& bestPos, vector<int> testCons);
 
 public:
+    string probID = "";
+    int iter = 0;
+    int bestMaxWeight = 0;
+    int optimalWeight;
+    
+    // variable that will hold the DFO algorithm components
+    unique_ptr<DFO> dfo = unique_ptr<DFO>(new DFO());
     
     Dfo_knap(); // generate a DFO model to solve example problem instance
     Dfo_knap(Problem& data); // model constructors that take in externally define problems
@@ -82,8 +84,8 @@ public:
     void changeAlgo(AlgoType type);
     void changeGreedVsSafetyRatio(float ratio);
     void changeNeighTopol(DFO::NeighbouringTopologyType ntt = DFO::RING);
-    void run();
-    
+    bool run(bool verbose = true);
+
     DimensionsPerFeatureError myex;
 };
 

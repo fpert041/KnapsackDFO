@@ -23,14 +23,14 @@ Dfo_knap::Dfo_knap() {
     constraints = {
         { 45, 0, 85, 150, 65, 95, 30, 0, 170, 0, 40, 25, 20, 0, 0, 25, 0, 0, 25, 0, 165, 0, 85, 0, 0, 0, 0, 100},
         { 30, 20, 125, 5, 80, 25, 35, 73, 12, 15, 15, 40, 5, 10,10, 12, 10, 9, 0, 20, 60, 40, 50, 36, 49, 40, 19, 150}};
-    optimalWight = 141278;
+    optimalWeight = 141278;
     counter2 = 0;
 }
 
 Dfo_knap::Dfo_knap(Problem& data){
     pProblemData = &data;
     probID = data.probID;
-    optimalWight = data.optimalWeight;
+    optimalWeight = data.optimalWeight;
     constraints = data.constraints;
     weights = data.weights;
     knap_capacity = data.capacs;
@@ -42,7 +42,7 @@ Dfo_knap::Dfo_knap(Problem& data){
 Dfo_knap::Dfo_knap(Problem* data){
     pProblemData = data;
     probID = data->probID;
-    optimalWight = data->optimalWeight;
+    optimalWeight = data->optimalWeight;
     constraints = data->constraints;
     weights = data->weights;
     knap_capacity = data->capacs;
@@ -56,12 +56,16 @@ Dfo_knap::Dfo_knap(vector<int>maxCap, vector<int> w, vector<vector<int>> c, int 
     numKnaps = int(maxCap.size());
     weights = w;
     constraints = c;
-    optimalWight = targetOptimum;
+    optimalWeight = targetOptimum;
+    counter2 = 0;
 };
 
 //------------------------------------------------------------
 
 void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
+    counter2 = 0;
+    
+    iter = 0; // variable we will use to see how many times we called the fitness function
     
     // check if a REDUCED flag has been passed in as 2n arg (if so turn bool switch)
     if(r == REDUCED) reduc = true;
@@ -114,13 +118,13 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
                                 int sumWeights = 0;
                                 vector<int> sumConst = vector<int>(numKnaps, 0);
                                 bitset<16> A;//A will hold the binary representation of N up to 16 bits (we don't really need anything bigger than this as the dimensions should be constrained to lower values anyway)
-                                for(int k = 0; k<chunks-1; ++k){
+                                for(unsigned int k = 0; k<chunks-1; ++k){
                                     int N = floor(p[k]+0.5); //input number in base 10
                                     A=N;
-                                    for(int i = 0; i<dimsPerFeature; ++i) {
+                                    for(unsigned int i = 0; i<dimsPerFeature; ++i) {
                                         if(A[i] >= 0.5) {
                                             sumWeights += weights[i+k*dimsPerFeature];
-                                            for(int j = 0; j<numKnaps; ++j){
+                                            for(unsigned int j = 0; j<numKnaps; ++j){
                                                 sumConst[j] += constraints[j][i+k*dimsPerFeature];
                                             }
                                         }
@@ -131,10 +135,10 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
                                 // last chunk ---
                                 int N = floor(p[chunks-1]+0.5); //input number in base 10
                                 A=N;
-                                for(int i = 0; i<lastChunkDim; ++i) {
+                                for(unsigned int i = 0; i<lastChunkDim; ++i) {
                                     if(A[i] >= 0.5) {
                                         sumWeights += weights[i+(chunks-1)*dimsPerFeature];
-                                        for(int j = 0; j<numKnaps; ++j){
+                                        for(unsigned int j = 0; j<numKnaps; ++j){
                                             sumConst[j] += constraints[j][i+(chunks-1)*dimsPerFeature];
                                         }
                                     }
@@ -143,7 +147,7 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
                                 //----
                                 
                                 double errC = 0;
-                                for(int i = 0; i<numKnaps; ++i){
+                                for(unsigned int i = 0; i<numKnaps; ++i){
                                     if(sumConst[i] > knap_capacity[i]) errC += 10.0;
                                 }
                                 errC /= numKnaps;
@@ -166,7 +170,7 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
                                 int sumWeights = 0;
                                 vector<int> sumConst = vector<int>(numKnaps, 0);
                                 
-                                for(int i = 0; i<numObjects; ++i) {
+                                for(unsigned int i = 0; i<numObjects; ++i) {
                                     if((p[i] >= 0.5)){ /*&& p[i] < knap_capacity.size())) { // ** distributed rack */
                                         sumWeights += weights[i];
                                         for(int j = 0; j<numKnaps; ++j){
@@ -251,13 +255,12 @@ void Dfo_knap::changeNeighTopol(DFO::NeighbouringTopologyType ntt){
     dfo->setNeighbourTopology(ntt);
 };
 
-void Dfo_knap::run() {
+bool Dfo_knap::run(bool verbose) {
     double targetWvsC = weightVsConstRatio;
     float newDt = 0.8;
     float targetDt = dfo->getDt();
     int counter = 0;
-    int i = 0;
-    int printoutGapWidth = 500;
+    int printoutGapWidth = 2000;
     vector<int> testCons = vector<int>(numKnaps, 0);
     
     int tenPercentFEA = reduc == true ? floor(dfo->getFEAllowed()*0.2) : 0;
@@ -268,21 +271,24 @@ void Dfo_knap::run() {
     }
     
     std::vector<double> bestPos = dfo->getBestFly()->getPos();
-    int bestMaxWeight = 0;
+    bestMaxWeight = 0;
     
     
     // run the algorithm N% of allowed times (useful for partially taking advantage of dimensionality reduction)
-    for (i = 0; i<tenPercentFEA; ++i){
+    for (iter = 0; iter<tenPercentFEA; ++iter){
         
         adapt(newDt, targetDt, counter, targetWvsC, bestMaxWeight, bestPos, testCons);
         
         // analysis
-        if(i%printoutGapWidth == 0) {
-            report(i, bestPos, bestMaxWeight, testCons);
+        if(iter%printoutGapWidth == 0) {
+            if(verbose)
+                report(iter, bestPos, bestMaxWeight, testCons);
+            else
+                cout << " .";
         }
-        if (bestMaxWeight == optimalWight) {
-            report(i, bestPos, bestMaxWeight, testCons);
-            break;
+        if (bestMaxWeight == optimalWeight) {
+            if(verbose) report(iter, bestPos, bestMaxWeight, testCons);
+            return true;
         }
     }
     
@@ -294,10 +300,10 @@ void Dfo_knap::run() {
     
     // convert current best fly's position into a binary sequence
     bitset<16> A;//A will hold the binary representation of N with 16 bits precision
-    for(int k = 0; k<chunks-1; ++k){
+    for(unsigned int k = 0; k<chunks-1; ++k){
         int N = floor(bestPos[k]+0.5); //input number in base 10
         A=N;
-        for (int i = 0; i<dimsPerFeature; ++i){
+        for (unsigned int i = 0; i<dimsPerFeature; ++i){
             binaryBestPos[k*dimsPerFeature+i] = A[i];
         }
         A=0;
@@ -305,7 +311,7 @@ void Dfo_knap::run() {
     // last chunk of the binary sequence ---
     int N = floor(bestPos[chunks-1]+0.5); //input number in base 10
     A=N;
-    for (int i = 0; i<lastChunkDim; ++i){
+    for (unsigned int i = 0; i<lastChunkDim; ++i){
         binaryBestPos[(chunks-1)*dimsPerFeature+i] = A[i];
     }
     A=0;
@@ -328,20 +334,29 @@ void Dfo_knap::run() {
     }
     
     // run the algorithm until the max number of flies evaluations allowed
-    for (i = tenPercentFEA; i<dfo->getFEAllowed(); ++i){
+    for (iter = tenPercentFEA; iter<dfo->getFEAllowed(); ++iter){
         adapt(newDt, targetDt, counter, targetWvsC, bestMaxWeight, bestPos, testCons);
         
         // analysis
-        if(i%printoutGapWidth == 0) {
-            report(i, bestPos, bestMaxWeight, testCons);
+        if(iter%printoutGapWidth == 0) {
+            if(verbose)
+                report(iter, bestPos, bestMaxWeight, testCons);
+            else
+                cout << " .";
         }
-        if (bestMaxWeight == optimalWight) {
-            report(i, bestPos, bestMaxWeight, testCons);
-            break;
+        if (bestMaxWeight == optimalWeight) {
+            if(verbose) report(iter, bestPos, bestMaxWeight, testCons);
+            return true;
         }
     }
     int finI = dfo->getFEAllowed()-1;
-    report(finI, bestPos, bestMaxWeight, testCons);
+    
+    if(verbose) report(finI, bestPos, bestMaxWeight, testCons);
+    
+    if (bestMaxWeight == optimalWeight) {
+        return true;
+    }
+    return false;
 }
 
 
@@ -389,10 +404,10 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
         for(int k = 0; k<chunks-1; ++k){
             int N = floor(bestPos[k]+0.5); //input number in base 10
             A=N;
-            for (int m = 0; m<dimsPerFeature; ++m){
+            for (unsigned int m = 0; m<dimsPerFeature; ++m){
                 if(A[m] >= 0.5) {
                     bestMaxWeight += weights[m+k*dimsPerFeature];
-                    for(int j = 0; j<numKnaps; ++j){
+                    for(unsigned int j = 0; j<numKnaps; ++j){
                         testCons[j] += constraints[j][m+k*dimsPerFeature];
                     }
                 }
@@ -402,10 +417,10 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
         // last chunk ---
         int N = floor(bestPos[chunks-1]+0.5); //input number in base 10
         A=N;
-        for (int m = 0; m<lastChunkDim; ++m){
+        for (unsigned int m = 0; m<lastChunkDim; ++m){
             if(A[m] >= 0.5) {
                 bestMaxWeight += weights[m+(chunks-1)*dimsPerFeature];
-                for(int j = 0; j<numKnaps; ++j){
+                for(unsigned int j = 0; j<numKnaps; ++j){
                     testCons[j] += constraints[j][m+(chunks-1)*dimsPerFeature];
                 }
             }
@@ -413,11 +428,11 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
         A=0;
         // ----
     } else {
-        for(int m = 0; m<bestPos.size(); ++m){
+        for(unsigned int m = 0; m<bestPos.size(); ++m){
             bestPos[m] = floor(bestPos[m] + 0.5);
             if(bestPos[m] >= 0.5){
                 bestMaxWeight += weights[m];
-                for(int j = 0; j<numKnaps; ++j){
+                for(unsigned int j = 0; j<numKnaps; ++j){
                     testCons[j] += constraints[j][m];
                 }
             }
@@ -499,6 +514,8 @@ void Dfo_knap::report(int& i, vector<double>& bestPos, int& bestMaxWeight, vecto
     }
     std::cout <<  "\n";
     std::cout << "best weight obtained : "<< bestMaxWeight <<  "\n";
-    std::cout << "best weight target : "<< optimalWight <<  "\n";
+    std::cout << "best weight target : "<< optimalWeight <<  "\n";
 }
+
+
 

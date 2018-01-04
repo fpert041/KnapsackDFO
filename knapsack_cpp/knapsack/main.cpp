@@ -44,34 +44,102 @@ int main(int argc, const char * argv[]) {
     //------------
     // SETUP
     
-    unsigned int set = 30; // from 1 to 48 (1)(2)(30)
+    unsigned int set = 1; // from 1 to 48 (1)(2)(22)(30)
     
     //Dfo_knap knap;
-    Dfo_knap knap(reader.problems[set-1]);
+    unique_ptr<Dfo_knap> knap (new Dfo_knap(reader.problems[set-1]));
     
     //------------
     // RUN
     
-    // optional arguments: population size + dimensionality reduction factor + dimensions per feature (if reduced):
-    // (1) pass in an int and define how many flies to spawn in the swarm (defaults to 50)
-    // (2) pass in REDUCED to use dimensionality reduction (not advisable on 8 / defaults to EXTENDED == no reduction)
-    // (3) pass in a power of 2 between 1 and 16 to set the number of features to be reducded into 1 dimension
+    int times = 30;
+    int countSuccesses = 0;
+    int popSize = 50;
+
+
+    std::vector<double> fitnesses(times, 0);
+    double bestFitness = 0, worstFitness = knap->optimalWeight;
+    double reliability = 0;
+    std::vector<double> efficiency;
+    double bestEfficiency = 10E8, worstEfficiency = 0;
+    
+    for(unsigned int i = 0; i<times; ++i){
+
+        knap.reset(new Dfo_knap(reader.problems[set-1]));
+        
+        
+        // optional arguments: population size + dimensionality reduction factor + dimensions per feature (if reduced):
+        // (1) pass in an int and define how many flies to spawn in the swarm (defaults to 50)
+        // (2) pass in REDUCED to use dimensionality reduction (not advisable on 8 / defaults to EXTENDED == no reduction)
+        // (3) pass in a power of 2 between 1 and 16 to set the number of features to be reducded into 1 dimension
+        knap->setup(popSize, REDUCED, 4);
+        
+        knap->changeCyclesNum(4801); // set the cycles of the algorithm
+        //knap.changeCyclesNum(20001); // set the cycles of the algorithm
+        knap->changeAlgo(SWARM_BEST); // set the type of DFO algorithm
+        knap->changeGreedVsSafetyRatio(20); // change the ratio between "reward" for filling the knapsack and "punishment" for exceeding the knapsack capacity (it defaults to 10, which makes it practically impossible to exceed the knapsack but doesn't let the algorithm "dare" to fill up)
+        knap->changeNeighTopol(DFO::RANDOM);
+        
+        //knap.run(); // verbose version
+        if(knap->run(false)){
+            countSuccesses++;
+            int eff = knap->iter * popSize;
+            efficiency.push_back(eff);
+            bestEfficiency = eff < bestEfficiency ? eff : bestEfficiency;
+            worstEfficiency = eff > worstEfficiency ? eff : worstEfficiency;
+        }
+        
+        fitnesses[i] = knap->bestMaxWeight;
+        bestFitness = abs(knap->optimalWeight - knap->bestMaxWeight) < abs(knap->optimalWeight - bestFitness) ? fitnesses[i] : bestFitness;
+        worstFitness = abs(knap->optimalWeight - knap->bestMaxWeight) > abs(knap->optimalWeight - worstFitness) ? fitnesses[i] : worstFitness;
+    }
+    
+    reliability = double(countSuccesses)/times;
+    
+    double fitStDev = stDev(fitnesses);
+    double avgFit = mean(fitnesses);
+    double avgEfficiency = efficiency.size() > 0 ? mean(efficiency) : 0;
+    double avgStDev = efficiency.size() > 0 ? stDev(efficiency) : 0;
+    
+    cout << "Problem: " << knap->probID << "\n";
+    cout << "Average Fitness: " <<  avgFit << " ± " << fitStDev << " (ideal: " << knap->optimalWeight << ")\n";
+    cout << "Best Fitness: " <<  bestFitness << "\n";
+    cout << "Worst Fitness: " <<  worstFitness << "\n";
+    
+    cout << "Reliability: " << reliability*100 << "%: " << countSuccesses << " successes over " << times << " attempts\n";
+    
+    if(efficiency.size() > 0){
+        cout << "Average Efficiency: " << avgEfficiency << " ± " << avgStDev << " Calls to Fit. Eval.\n";
+        cout << "Best Efficiency: " <<  bestEfficiency << " Calls to Fit. Eval.\n";
+        cout << "Worst Efficiency: " <<  worstEfficiency << " Calls to Fit. Eval.\n";
+    } else {
+        cout << "Efficiency not computable as no attempts were successful in the max allowed iterations\n" ;
+    }
+    
+    cout << "Above Values in an easy to copy form: \n";
+    cout << avgFit << " ± " << fitStDev << "\n";
+    cout << bestFitness << "\n";
+    cout <<  worstFitness << "\n";
+    cout << reliability*100 << "%\n";
+    if(efficiency.size() > 0){
+        cout << avgEfficiency << " ± " << avgStDev << "\n";
+        cout <<  bestEfficiency << "\n";
+        cout <<  worstEfficiency << "\n";
+    }
+    
+    cout << endl;
     
     
-    //knap.setup(50, EXTENDED);
-    knap.setup(50, REDUCED, 4);
-    //knap.setup(50, EXTENDED, 4);
-    //knap.setup(30, REDUCED)
-    //knap.setup();
+    /*
+    knap.setup(popSize, REDUCED, 4);
     
     knap.changeCyclesNum(4801); // set the cycles of the algorithm
     //knap.changeCyclesNum(20001); // set the cycles of the algorithm
     knap.changeAlgo(SWARM_BEST); // set the type of DFO algorithm
     knap.changeGreedVsSafetyRatio(20); // change the ratio between "reward" for filling the knapsack and "punishment" for exceeding the knapsack capacity (it defaults to 10, which makes it practically impossible to exceed the knapsack but doesn't let the algorithm "dare" to fill up)
     knap.changeNeighTopol(DFO::RANDOM);
-    
     knap.run();
-    
+     */
     //------------
     
     return 0;

@@ -33,7 +33,9 @@ problem WEING1.DAT // Title
  15 40 5 10 10 12 10 9 0 20
  60 40 50 36 49 40 19 150 // #2 constr.
  */
-
+double mean(vector<double>& v);
+double stDev(vector<double>& v);
+    
 class Problem {
     
 public:
