@@ -56,7 +56,14 @@ class Dfo_knap {
     int lastChunkDim = 0;
     int chunks = 1;
     int newFtSize = 1;
-    int FEAllowed = 50001;
+    int FEAllowed = 4801;
+    
+    //--------------------------
+    double upperDtThreshold = 0.25; //**
+    double lowRatioThreshold = 1; //**
+    double reducingFactorForRatio = 0.9; //**
+    int numNeighboursPerSide = 7; //**
+    //--------------------------
     
     double fitness;
     int counter2 = 0;

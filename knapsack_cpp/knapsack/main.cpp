@@ -44,7 +44,8 @@ int main(int argc, const char * argv[]) {
     //------------
     // SETUP
     
-    unsigned int set = 1; // from 1 to 48 (1)(2)(22)(30)
+    unsigned int set = 45; // from 1 to 48 (1)(2)(22)(30)(43)(44)(45)
+    bool isHardProblem = false; //Sent 01, 02, Weish 12, 20 = hard // Pet 1,2,3 + Pb 4,5,6 = not hard
     
     //Dfo_knap knap;
     unique_ptr<Dfo_knap> knap (new Dfo_knap(reader.problems[set-1]));
@@ -55,7 +56,6 @@ int main(int argc, const char * argv[]) {
     int times = 30;
     int countSuccesses = 0;
     int popSize = 50;
-
 
     std::vector<double> fitnesses(times, 0);
     double bestFitness = 0, worstFitness = knap->optimalWeight;
@@ -74,7 +74,10 @@ int main(int argc, const char * argv[]) {
         // (3) pass in a power of 2 between 1 and 16 to set the number of features to be reducded into 1 dimension
         knap->setup(popSize, REDUCED, 4);
         
-        knap->changeCyclesNum(4801); // set the cycles of the algorithm
+        if(isHardProblem)
+            knap->changeCyclesNum(481); // set the cycles of the algorithm [either 481 for the hard ones or 361 for the easier ones according to the papers we compete against (modified PSO & DE)]
+        else
+            knap->changeCyclesNum(361);
         //knap.changeCyclesNum(20001); // set the cycles of the algorithm
         knap->changeAlgo(SWARM_BEST); // set the type of DFO algorithm
         knap->changeGreedVsSafetyRatio(20); // change the ratio between "reward" for filling the knapsack and "punishment" for exceeding the knapsack capacity (it defaults to 10, which makes it practically impossible to exceed the knapsack but doesn't let the algorithm "dare" to fill up)

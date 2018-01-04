@@ -205,7 +205,7 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
     dfo->setConstrainPos(true);
     
     // set neighbours to check per side
-    dfo->setNumNeighbours(9);
+    dfo->setNumNeighbours(numNeighboursPerSide);
     
     // set up a populatin size of 100
     dfo->setPopSize(popSize);
@@ -213,7 +213,7 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
     // set neighbour-best algorithm rather swarm-best version (which would be prone to fall into local minima)
     dfo->setDemocracy(demo);
     
-    // increase the likelyhood of a random dispersion
+    // increase the likelyhood of a random dispersion (it also becomes the lower threshold for when dt oscillates)
     dfo->setDt(0.1);
     
     // constarin each dimension to a range between 0 and 1
@@ -388,9 +388,9 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
             dfo->setNeighbourTopology(DFO::RING);
             dfo->setDemocracy(false);
         }
-        weightVsConstRatio *= 0.9;
-        newDt = 0.17;
-        double lowThresh = 1;
+        weightVsConstRatio *= reducingFactorForRatio;
+        newDt = upperDtThreshold;
+        double lowThresh = lowRatioThreshold;
         weightVsConstRatio = weightVsConstRatio < lowThresh ? lowThresh : weightVsConstRatio;
         counter = 0;
     }
