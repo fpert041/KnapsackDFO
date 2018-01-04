@@ -20,6 +20,7 @@ protected:
     bool constrainPositions = false;
     bool binaryProblem = false;
     bool discreteProblem = false;
+    bool keepMoving = false;
 
 public:
     
@@ -52,6 +53,10 @@ public:
     void const isDiscreteProblem(bool status);
     
     bool const getDiscreteProblem();
+    
+    void const setkeepMoving(bool status);
+    
+    bool const getkeepMoving();
 };
 
 #endif /* DFO_hpp */

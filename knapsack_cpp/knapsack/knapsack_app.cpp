@@ -380,7 +380,7 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
     
     // IMPORTANT WOW! FACTOR: THIS PART CHANGES DYNAMICALLY HOW THE ALGORITHM WORKS AND HOW THE FITNESS FUNCTION ASSESSES THE FITNESS REWARDS/PENALTIES --> In case the algorithm gets stuck, the equations are pushed "outside of the allowed parameters to explore the search space through "non acdeptable paths". This means that the fitness function starts to temporarily give less "penalty" to knapsacks that are filled above their limit. This allows the algorithm to "explore" more when it remains blocked for too long
     fitness = tempfitness;
-    if(counter > 10){
+    if(counter > 5){
         if(dfo->getNeighbourTopology() == "RING"){
             dfo->setNeighbourTopology(DFO::RANDOM);
             dfo->setDemocracy(true);
@@ -388,6 +388,7 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
             dfo->setNeighbourTopology(DFO::RING);
             dfo->setDemocracy(false);
         }
+        
         weightVsConstRatio *= reducingFactorForRatio;
         newDt = upperDtThreshold;
         double lowThresh = lowRatioThreshold;

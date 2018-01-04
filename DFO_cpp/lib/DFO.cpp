@@ -209,13 +209,15 @@ void const DFO::updateSwarm(){
             //cout << "Disturbances in Fly  #" + to_sring(i) + ": \t" + to_sring(dCounter) << endl;
         }
         
-        // EXPERIMENT   ---------
+        // EXPERIMENT   ---------> Successful!
         double tempFit = evaluate(temp);
         double prevFit = swarm[k]->getFitness();
         
         swarm[k]->setFitness(prevFit);
         
-        if(tempFit < prevFit){
+        
+        // !!!!! GAME CHANGER: ONLY UPDATE FLYS IF THEIR MOVEMENT IMPROVES THEIR FITNESS !!!
+        if(tempFit < prevFit || keepMoving){
             swarm[k]->setPos(temp);
             swarm[k]->setFitness(tempFit);
         }
@@ -225,6 +227,15 @@ void const DFO::updateSwarm(){
     }
     // ==== // end of interaction phase // ==== //
     evalCount ++;
+}
+
+// make the DFO algo move even if the new fitness is not better
+void const DFO::setkeepMoving(bool status){
+    keepMoving = status;
+}
+
+bool const DFO::getkeepMoving(){
+    return keepMoving;
 }
 
 // fly's coordinates are rounded to either 1 or 0 at the end of the update function
