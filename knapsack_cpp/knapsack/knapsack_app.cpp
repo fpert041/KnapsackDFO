@@ -195,9 +195,13 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
                             );
     }
     
+    // constrain dimensions to be boolean 1/0 values at update time
+    dfo->isBinaryProblem(true);
+    
+    dfo->setConstrainPos(true);
     
     // set neighbours to check per side
-    dfo->setNumNeighbours(4);
+    dfo->setNumNeighbours(6);
     
     // set up a populatin size of 100
     dfo->setPopSize(popSize);
@@ -209,7 +213,7 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
     dfo->setDt(0.1);
     
     // constarin each dimension to a range between 0 and 1
-    dfo->setConstrainPos(true);
+    //dfo->setConstrainPos(true);
     
     // set security stopper for maximum
     dfo->setFEAllowed(FEAllowed);
@@ -253,12 +257,19 @@ void Dfo_knap::run() {
     float targetDt = dfo->getDt();
     int counter = 0;
     int i = 0;
+    int printoutGapWidth = 500;
     vector<int> testCons = vector<int>(numKnaps, 0);
     
-    int tenPercentFEA = floor(dfo->getFEAllowed()*0.2);
+    int tenPercentFEA = reduc == true ? floor(dfo->getFEAllowed()*0.2) : 0;
+    
+    if(reduc){
+        dfo->isDiscreteProblem(true);
+        dfo->isBinaryProblem(false);
+    }
     
     std::vector<double> bestPos = dfo->getBestFly()->getPos();
     int bestMaxWeight = 0;
+    
     
     // run the algorithm N% of allowed times (useful for partially taking advantage of dimensionality reduction)
     for (i = 0; i<tenPercentFEA; ++i){
@@ -266,15 +277,11 @@ void Dfo_knap::run() {
         adapt(newDt, targetDt, counter, targetWvsC, bestMaxWeight, bestPos, testCons);
         
         // analysis
-        if(i%1000 == 0) {
+        if(i%printoutGapWidth == 0) {
             report(i, bestPos, bestMaxWeight, testCons);
         }
         if (bestMaxWeight == optimalWight) {
-            std::cout <<  "\n";
-            std::cout << "best weight obtained : "<< bestMaxWeight <<  "\n";
-            std::cout << "best weight target : "<< optimalWight <<  "\n";
-            std::cout << "iterations needed: "<< i <<  "\n";
-            std::cout << "---" << std::endl;
+            report(i, bestPos, bestMaxWeight, testCons);
             break;
         }
     }
@@ -315,21 +322,21 @@ void Dfo_knap::run() {
     // pass best position onwards as a leader
     dfo->setLeader(binaryBestPos);
     
+    if(reduc){
+        dfo->isDiscreteProblem(false);
+        dfo->isBinaryProblem(true);
+    }
+    
     // run the algorithm until the max number of flies evaluations allowed
     for (i = tenPercentFEA; i<dfo->getFEAllowed(); ++i){
-    
         adapt(newDt, targetDt, counter, targetWvsC, bestMaxWeight, bestPos, testCons);
         
         // analysis
-        if(i%1000 == 0) {
+        if(i%printoutGapWidth == 0) {
             report(i, bestPos, bestMaxWeight, testCons);
         }
         if (bestMaxWeight == optimalWight) {
-            std::cout <<  "\n";
-            std::cout << "best weight obtained : "<< bestMaxWeight <<  "\n";
-            std::cout << "best weight target : "<< optimalWight <<  "\n";
-            std::cout << "iterations needed: "<< i <<  "\n";
-            std::cout << "---" << std::endl;
+            report(i, bestPos, bestMaxWeight, testCons);
             break;
         }
     }
@@ -343,6 +350,7 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
     bestMaxWeight = 0;
     
     newDt = (newDt >= targetDt) ? targetDt : (newDt - 0.001);
+    
     dfo->setDt(newDt);
     dfo->updateSwarm();
     
@@ -351,12 +359,12 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
         counter ++;
     } else {
         counter = floor(counter*0.1);
-        weightVsConstRatio = weightVsConstRatio >= wvsc*2 ? wvsc*2 : weightVsConstRatio + 0.02;
+        weightVsConstRatio = weightVsConstRatio >= wvsc*2 ? wvsc*2 : weightVsConstRatio + 0.005;
     }
     
     // IMPORTANT WOW! FACTOR: THIS PART CHANGES DYNAMICALLY HOW THE ALGORITHM WORKS AND HOW THE FITNESS FUNCTION ASSESSES THE FITNESS REWARDS/PENALTIES --> In case the algorithm gets stuck, the equations are pushed "outside of the allowed parameters to explore the search space through "non acdeptable paths". This means that the fitness function starts to temporarily give less "penalty" to knapsacks that are filled above their limit. This allows the algorithm to "explore" more when it remains blocked for too long
     fitness = tempfitness;
-    if(counter > 1000){
+    if(counter > 10){
         if(dfo->getNeighbourTopology() == "RING"){
             dfo->setNeighbourTopology(DFO::RANDOM);
             dfo->setDemocracy(true);
@@ -364,8 +372,10 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
             dfo->setNeighbourTopology(DFO::RING);
             dfo->setDemocracy(false);
         }
-        weightVsConstRatio *= 0.5;
-        weightVsConstRatio = weightVsConstRatio < 0.002 ? 0.002 : weightVsConstRatio;
+        weightVsConstRatio *= 0.9;
+        newDt = 0.17;
+        double lowThresh = 1;
+        weightVsConstRatio = weightVsConstRatio < lowThresh ? lowThresh : weightVsConstRatio;
         counter = 0;
     }
     
@@ -421,7 +431,7 @@ void Dfo_knap::report(int& i, vector<double>& bestPos, int& bestMaxWeight, vecto
     cout << probID << ", ";
 
     std::cout << "cycle: " << i <<  ", ";
-    std::cout << "CALLS to FIT. FUNC.: " << dfo->getEvalsCounter() <<  "\n";
+    std::cout << "CALLS to FIT. FUNC.: " << i * dfo->getPopSize() <<  "\n";
     std::cout << "algo: " << (dfo->getDemocracy() ? "Best Neighbour" : "Swarm's Best") <<  ", ";
     std::cout << "greed/safety ratio: " << weightVsConstRatio << "\n";
     std::cout << "pop. size: " << dfo->getPopSize() << ", ";

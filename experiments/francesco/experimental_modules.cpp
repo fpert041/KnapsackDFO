@@ -195,6 +195,7 @@ void const DFOx::updateSwarm(){
             if (constrainPositions) {
                 if ( temp[d] > searchSpaceWidth[d] ) temp[d] = /*searchSpaceWidth[d];*/   searchSpaceWidth[d]-fmod(temp[d], searchSpaceWidth[d])*std::min(abs(genGaussian(0, 1)), 1.0);
                 if (temp[d] < 0.) temp[d] =  /*0;*/fmod(abs(temp[d]), searchSpaceWidth[d])*std::min(abs(genGaussian(0, 1)), 1.0);
+                
             }
             
             //cout << "Disturbances in Fly  #" + to_sring(i) + ": \t" + to_sring(dCounter) << endl;

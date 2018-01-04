@@ -69,6 +69,7 @@ void Fly::setPos(int n, double inPos) { // change one specific dimension (n) of 
 
 void Fly::setFitness(double t) { // set fitness value
     fitness = t;
+    exFitness = fitness;
 }
 
 //------------------------------------------------------------------------------------
@@ -78,6 +79,10 @@ const double Fly::getFitness() { // return fitness value
     return fitness;
 }
 
+
+const double Fly::getExFitness(){ // return ex fitness value
+    return exFitness;
+}
 //------------------------------------------------------------------------------------
 
 const double Fly::getDistance(int n) { // euclidean distance between position vectors

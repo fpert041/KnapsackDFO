@@ -44,7 +44,7 @@ int main(int argc, const char * argv[]) {
     //------------
     // SETUP
     
-    unsigned int set = 1; // from 1 to 48
+    unsigned int set = 30; // from 1 to 48 (1)(2)(30)
     
     //Dfo_knap knap;
     Dfo_knap knap(reader.problems[set-1]);
@@ -60,10 +60,12 @@ int main(int argc, const char * argv[]) {
     
     //knap.setup(50, EXTENDED);
     knap.setup(50, REDUCED, 4);
+    //knap.setup(50, EXTENDED, 4);
     //knap.setup(30, REDUCED)
     //knap.setup();
     
-    knap.changeCyclesNum(100001); // set the cycles of the algorithm
+    knap.changeCyclesNum(4801); // set the cycles of the algorithm
+    //knap.changeCyclesNum(20001); // set the cycles of the algorithm
     knap.changeAlgo(SWARM_BEST); // set the type of DFO algorithm
     knap.changeGreedVsSafetyRatio(20); // change the ratio between "reward" for filling the knapsack and "punishment" for exceeding the knapsack capacity (it defaults to 10, which makes it practically impossible to exceed the knapsack but doesn't let the algorithm "dare" to fill up)
     knap.changeNeighTopol(DFO::RANDOM);

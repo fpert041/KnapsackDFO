@@ -101,6 +101,8 @@ public:
     void setSwarm(std::vector<std::shared_ptr<Fly>> newS);
         // set the swarm
     
+    void setEvalCount(int n);
+        // set the evaluation counts
     // -- getters --
     
     std::vector<std::shared_ptr<Fly>> getSwarm();

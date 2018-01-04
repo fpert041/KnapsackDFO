@@ -18,6 +18,8 @@ class DFO : public Utilis {
 protected:
     
     bool constrainPositions = false;
+    bool binaryProblem = false;
+    bool discreteProblem = false;
 
 public:
     
@@ -42,6 +44,14 @@ public:
     
     // keep fly's coordinates within the given search space width
     void const setConstrainPos(bool status);
+    
+    // fly's coordinates are rounded to either 1 or 0 at the end of the update function
+    void const isBinaryProblem(bool status);
+    
+    // fly's coordinates are rounded to either 1 or 0 at the end of the update function
+    void const isDiscreteProblem(bool status);
+    
+    bool const getDiscreteProblem();
 };
 
 #endif /* DFO_hpp */

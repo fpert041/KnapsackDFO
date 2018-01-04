@@ -24,6 +24,8 @@ private:
     std::vector<double>pos; // fly position (in an N-Dimentional problem/search space)
     std::vector<double>exPos; // old position
     double fitness = 10E8; // fitness
+    double exFitness = 10E8; // fitness at old position
+   
     int posDimensions; // variable holding the dimensions of the problem's space
     GlobalParam * pContext = nullptr; // holds a pointer to the swarm we are in and its parameters
     
@@ -54,6 +56,7 @@ public:
     void setFitness(double t); // set fitness value
     
     const double getFitness(); // return fitness value
+    const double getExFitness(); // return ex fitness value
     
     // take in the reference of a swarm of flies (vector) and an int 'n'
     // then return the distance between

@@ -89,6 +89,9 @@ void GlobalParam::setSwarm(std::vector<std::shared_ptr<Fly>> newS){
         std::cout << "THE NEW SWARM IS NOT COMPATIBLE" << std::endl;
 }
 
+void GlobalParam::setEvalCount(int n){
+    evalCount = n;
+}
 
 // ----- getters ----
 
@@ -149,5 +152,7 @@ std::string GlobalParam::getDtRandMode(){
     if(drm == UNI) return "UNIFORM";
     else return "GAUSSIAN";
 }
+
+
 
 

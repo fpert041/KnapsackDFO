@@ -90,6 +90,8 @@ void const DFO::updateSwarm(){
         return void();
     
     // ========= EVALUATION Phase =========
+    
+    if(evalCount == 0)
     for (int i = 0; i < popSize; ++i)
     {
         // evaluate the fitness of each Fly in the swarm, then leave a record of the fitness value into each fly
@@ -196,10 +198,46 @@ void const DFO::updateSwarm(){
                 if (temp[d] < 0.) temp[d] =  /*0;*/fmod(abs(temp[d]), searchSpaceWidth[d])*std::min(abs(genGaussian(0, 1)), 1.0);
             }
             
+            if(binaryProblem){
+                temp[d] = temp[d] < 0.5 ? 0 : 1;
+            }
+            
+            if(discreteProblem){
+                temp[d] = int(temp[d] + 0.5);
+            }
+            
             //cout << "Disturbances in Fly  #" + to_sring(i) + ": \t" + to_sring(dCounter) << endl;
         }
-        swarm[k]->setPos(temp);
+        
+        // EXPERIMENT   ---------
+        double tempFit = evaluate(temp);
+        double prevFit = swarm[k]->getFitness();
+        
+        swarm[k]->setFitness(prevFit);
+        
+        if(tempFit < prevFit){
+            swarm[k]->setPos(temp);
+            swarm[k]->setFitness(tempFit);
+        }
+        
+        
+        //----------
     }
     // ==== // end of interaction phase // ==== //
     evalCount ++;
+}
+
+// fly's coordinates are rounded to either 1 or 0 at the end of the update function
+void const DFO::isBinaryProblem(bool status){
+    binaryProblem = status;
+}
+
+// fly's coordinates are rounded to integers at the end of the update function
+void const DFO::isDiscreteProblem(bool status){
+    discreteProblem = status;
+}
+
+// fly's coordinates are rounded to integers at the end of the update function
+bool const DFO::getDiscreteProblem(){
+    return discreteProblem;
 }
