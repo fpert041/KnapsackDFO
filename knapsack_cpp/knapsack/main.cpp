@@ -101,7 +101,7 @@ int main(int argc, const char * argv[]) {
     double avgEfficiency = efficiency.size() > 0 ? mean(efficiency) : 0;
     double avgStDev = efficiency.size() > 0 ? stDev(efficiency) : 0;
     
-    cout << "Problem: " << knap->probID << "\n";
+    cout << "\nProblem: " << knap->probID << "\n";
     cout << "Average Fitness: " <<  avgFit << " ± " << fitStDev << " (ideal: " << knap->optimalWeight << ")\n";
     cout << "Best Fitness: " <<  bestFitness << "\n";
     cout << "Worst Fitness: " <<  worstFitness << "\n";
