@@ -59,7 +59,7 @@ class Dfo_knap {
     int FEAllowed = 4801;
     
     //--------------------------
-    double upperDtThreshold = 0.25; //**
+    double upperDtThreshold = 0.3; //**
     double lowRatioThreshold = 1; //**
     double reducingFactorForRatio = 0.9; //**
     int numNeighboursPerSide = 7; //**
