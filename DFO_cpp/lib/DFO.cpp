@@ -92,7 +92,7 @@ void const DFO::updateSwarm(){
     // ========= EVALUATION Phase =========
     
     if(evalCount == 0)
-    for (unsigned int i = 0; i < popSize; ++i)
+    for (unsigned   int i = 0; i < popSize; ++i)
     {
         // evaluate the fitness of each Fly in the swarm, then leave a record of the fitness value into each fly
         swarm[i]->setFitness( evaluate(swarm[i]->getPos()) );
@@ -184,8 +184,8 @@ void const DFO::updateSwarm(){
                     else{
                         //temp[d] = genGaussian(double(searchSpaceWidth[d])/2., double(searchSpaceWidth[d])/2.); // alternative stochastic method // (more likely towards middle of search space range)
                         temp[d] = genGaussian(searchSpaceWidth[d], searchSpaceWidth[d]);// (more towards the upper end of search space range)
-                        if(temp[d]>searchSpaceWidth[d])
-                            temp[d]-=searchSpaceWidth[d];
+                        if(temp[d] > searchSpaceWidth[d])
+                            temp[d] -= searchSpaceWidth[d];
                     }
                     
                     dCounter++;
@@ -194,8 +194,8 @@ void const DFO::updateSwarm(){
             
             // <<<<<<<<<<<<<<<<<   constrain dimensions to fit the range specified (bouncing off the edges)
             if (constrainPositions) {
-                if ( temp[d] > searchSpaceWidth[d] ) temp[d] = /*searchSpaceWidth[d];*/   searchSpaceWidth[d]-fmod(temp[d], searchSpaceWidth[d])*std::min(abs(genGaussian(0, 1)), 1.0);
-                if (temp[d] < 0.) temp[d] =  /*0;*/fmod(abs(temp[d]), searchSpaceWidth[d])*std::min(abs(genGaussian(0, 1)), 1.0);
+                if ( temp[d] > searchSpaceWidth[d] ) temp[d] = 2*searchSpaceWidth[d] - temp[d];
+                if ( temp[d] < 0. ) temp[d] = abs(temp[d]);
             }
             
             if(binaryProblem){

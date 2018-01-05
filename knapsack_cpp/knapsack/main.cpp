@@ -44,7 +44,7 @@ int main(int argc, const char * argv[]) {
     //------------
     // SETUP
     
-    unsigned int set = 1; // from 1 to 48 (1)(2)(22)(30) (43)(44)(45)
+    unsigned int set = 22; // from 1 to 48 (1)(2)(22)(30) (43)(44)(45)
     bool isHardProblem = true; //Sent 01, 02, Weish 12, 20 = hard // Pb 4,5,6 = not hard
     if(set > 30) isHardProblem = false;
     
