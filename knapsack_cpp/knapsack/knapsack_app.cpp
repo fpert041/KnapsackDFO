@@ -63,8 +63,8 @@ Dfo_knap::Dfo_knap(vector<int>maxCap, vector<int> w, vector<vector<int>> c, int 
 //------------------------------------------------------------
 
 void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
-    upperDtThreshold = 0.3; //**
-    lowRatioThreshold = 1; //**
+    upperDtThreshold = 0.3; //** (the lower one would be the initial dt)
+    lowRatioThreshold = 1; //** (the upper one would be the initial weightVsConstRatio ratio)
     reducingFactorForRatio = 0.9; //**
     numNeighboursPerSide = 7; //**
     dtDecreaseStep = 0.001; //**
@@ -266,7 +266,7 @@ bool Dfo_knap::run(bool verbose) {
     int printoutGapWidth = 2000;
     vector<int> testCons = vector<int>(numKnaps, 0);
     
-    int tenPercentFEA = reduc == true ? floor(dfo->getFEAllowed()*0.2) : 0;
+    int twentyPercentFEA = reduc == true ? floor(dfo->getFEAllowed()*0.2) : 0;
     
     if(reduc){
         dfo->isDiscreteProblem(true);
@@ -278,7 +278,7 @@ bool Dfo_knap::run(bool verbose) {
     
     
     // run the algorithm N% of allowed times (useful for partially taking advantage of dimensionality reduction)
-    for (iter = 0; iter<tenPercentFEA; ++iter){
+    for (iter = 0; iter<twentyPercentFEA; ++iter){
         
         adapt(newDt, targetDt, counter, targetWvsC, bestMaxWeight, bestPos, testCons);
         
@@ -337,7 +337,7 @@ bool Dfo_knap::run(bool verbose) {
     }
     
     // run the algorithm until the max number of flies evaluations allowed
-    for (iter = tenPercentFEA; iter<dfo->getFEAllowed(); ++iter){
+    for (iter = twentyPercentFEA; iter<dfo->getFEAllowed(); ++iter){
         adapt(newDt, targetDt, counter, targetWvsC, bestMaxWeight, bestPos, testCons);
         
         // analysis

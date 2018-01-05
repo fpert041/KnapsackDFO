@@ -71,6 +71,12 @@ void const DFO::generateSwarmPositiveAxis(){
         swarm.push_back(shared_ptr<Fly>(new Fly(genRandPosPositive(), this)));
     }
     
+    for (unsigned   int i = 0; i < popSize; ++i)
+    {
+        // evaluate the fitness of each Fly in the swarm, then leave a record of the fitness value into each fly
+        swarm[i]->setFitness( evaluate(swarm[i]->getPos()) );
+    }
+    
     findBestFly();
     
 }
@@ -89,17 +95,6 @@ void const DFO::updateSwarm(){
     if (evalCount > FE_allowed)
         return void();
     
-    // ========= EVALUATION Phase =========
-    
-    if(evalCount == 0)
-    for (unsigned   int i = 0; i < popSize; ++i)
-    {
-        // evaluate the fitness of each Fly in the swarm, then leave a record of the fitness value into each fly
-        swarm[i]->setFitness( evaluate(swarm[i]->getPos()) );
-    }
-    
-    // now that each fly knows its fitness, we can check and record which one is the best
-    findBestFly();
     // ========= INTERACTION Phase =========
     for (int k = 0; k < popSize; k++) {
         // Elitist approach:
@@ -210,6 +205,9 @@ void const DFO::updateSwarm(){
         }
         
         // EXPERIMENT   ---------> Successful!
+        
+        // ========= EVALUATION Phase =========
+        
         double tempFit = evaluate(temp);
         double prevFit = swarm[k]->getFitness();
         
@@ -223,7 +221,10 @@ void const DFO::updateSwarm(){
         }
         
         
-        //----------
+        // now that each fly knows its fitness, we can check and record which one is the best
+        findBestFly();
+        
+        //----------------------------------
     }
     // ==== // end of interaction phase // ==== //
     evalCount ++;

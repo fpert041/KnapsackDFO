@@ -56,7 +56,7 @@ class Dfo_knap {
     int lastChunkDim = 0;
     int chunks = 1;
     int newFtSize = 1;
-    int FEAllowed = 4801;
+    int FEAllowed = 481;
     
     //-------------------------- {params}
     double upperDtThreshold = 0.3; //**
