@@ -58,11 +58,13 @@ class Dfo_knap {
     int newFtSize = 1;
     int FEAllowed = 4801;
     
-    //--------------------------
+    //-------------------------- {params}
     double upperDtThreshold = 0.3; //**
     double lowRatioThreshold = 1; //**
     double reducingFactorForRatio = 0.9; //**
     int numNeighboursPerSide = 7; //**
+    double dtDecreaseStep = 0.001; //**
+    double weightVsConstRatioIncreaseStep = 0.005; //**
     //--------------------------
     
     double fitness;

@@ -365,7 +365,7 @@ bool Dfo_knap::run(bool verbose) {
 void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, int& bestMaxWeight, vector<double>& bestPos, vector<int> testCons){
     bestMaxWeight = 0;
     
-    newDt = (newDt >= targetDt) ? targetDt : (newDt - 0.001);
+    newDt = (newDt >= targetDt) ? targetDt : (newDt - dtDecreaseStep);
     
     dfo->setDt(newDt);
     dfo->updateSwarm();
@@ -375,7 +375,7 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
         counter ++;
     } else {
         counter = 0;
-        weightVsConstRatio = weightVsConstRatio >= wvsc ? wvsc : weightVsConstRatio + 0.005;
+        weightVsConstRatio = weightVsConstRatio >= wvsc ? wvsc : weightVsConstRatio + weightVsConstRatioIncreaseStep;
     }
     
     // IMPORTANT WOW! FACTOR: THIS PART CHANGES DYNAMICALLY HOW THE ALGORITHM WORKS AND HOW THE FITNESS FUNCTION ASSESSES THE FITNESS REWARDS/PENALTIES --> In case the algorithm gets stuck, the equations are pushed "outside of the allowed parameters to explore the search space through "non acdeptable paths". This means that the fitness function starts to temporarily give less "penalty" to knapsacks that are filled above their limit. This allows the algorithm to "explore" more when it remains blocked for too long
