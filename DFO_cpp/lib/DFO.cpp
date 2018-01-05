@@ -92,7 +92,7 @@ void const DFO::updateSwarm(){
     // ========= EVALUATION Phase =========
     
     if(evalCount == 0)
-    for (int i = 0; i < popSize; ++i)
+    for (unsigned int i = 0; i < popSize; ++i)
     {
         // evaluate the fitness of each Fly in the swarm, then leave a record of the fitness value into each fly
         swarm[i]->setFitness( evaluate(swarm[i]->getPos()) );

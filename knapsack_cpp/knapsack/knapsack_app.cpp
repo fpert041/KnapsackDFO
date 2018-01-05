@@ -70,6 +70,7 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
     dtDecreaseStep = 0.001; //**
     weightVsConstRatioIncreaseStep = 0.005; //**
     patience = 5; // number of cycles the swarm waits before changing (dynamic adaptation) //**
+    penalty = 10; //**
     
     iter = 0; // variable we will use to see how many times we called the fitness function
     
@@ -154,18 +155,16 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
                                 
                                 double errC = 0;
                                 for(unsigned int i = 0; i<numKnaps; ++i){
-                                    if(sumConst[i] > knap_capacity[i]) errC += 10.0;
+                                    if(sumConst[i] > knap_capacity[i]) errC += penalty;
                                 }
-                                errC /= numKnaps;
                                 
                                 double errW = double(maxWeight - sumWeights)/maxWeight;
-                                
                                 double fitness = errC*(weightVsConstRatio) + errW;
                                 
                                 //if (N<0) fitness += 100.0; // Only useful if I don't constrain the swarm (which I do)
                                 //if (N>pow(2,numObjects)) fitness += 100.0 // ''
                                 
-                                return fitness*10.;
+                                return fitness;
                             }
                             );
         
@@ -191,15 +190,13 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
                                 double errC = 0;
                                 for(int i = 0; i<numKnaps; ++i){
                                     //errC += abs(pow(E, (double)(sumConst[i] - knap_capacity[i])/maxConsts[i])-1.0);
-                                    if(sumConst[i] > knap_capacity[i]) errC += 100.0;
+                                    if(sumConst[i] > knap_capacity[i]) errC += penalty;
                                 }
-                                errC /= numKnaps;
                                 
                                 double errW = double(maxWeight - sumWeights)/maxWeight;
-                                
                                 double fitness = errC*weightVsConstRatio + errW;
                                 
-                                return fitness*10.;
+                                return fitness;
                                 
                             }
                             );

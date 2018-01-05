@@ -66,6 +66,7 @@ class Dfo_knap {
     double dtDecreaseStep = 0.001; //**
     double weightVsConstRatioIncreaseStep = 0.005; //**
     int patience = 5; // number of cycles the swarm waits before changing (dynamic adaptation)
+    double penalty = 10.0; //**
     //--------------------------
     
     double fitness;
