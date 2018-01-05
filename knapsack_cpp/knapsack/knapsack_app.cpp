@@ -69,6 +69,7 @@ void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
     numNeighboursPerSide = 7; //**
     dtDecreaseStep = 0.001; //**
     weightVsConstRatioIncreaseStep = 0.005; //**
+    patience = 5; // number of cycles the swarm waits before changing (dynamic adaptation) //**
     
     iter = 0; // variable we will use to see how many times we called the fitness function
     
@@ -385,7 +386,7 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
     
     // IMPORTANT WOW! FACTOR: THIS PART CHANGES DYNAMICALLY HOW THE ALGORITHM WORKS AND HOW THE FITNESS FUNCTION ASSESSES THE FITNESS REWARDS/PENALTIES --> In case the algorithm gets stuck, the equations are pushed "outside of the allowed parameters to explore the search space through "non acdeptable paths". This means that the fitness function starts to temporarily give less "penalty" to knapsacks that are filled above their limit. This allows the algorithm to "explore" more when it remains blocked for too long
     fitness = tempfitness;
-    if(counter > 5){
+    if(counter > patience){
         if(dfo->getNeighbourTopology() == "RING"){
             dfo->setNeighbourTopology(DFO::RANDOM);
             dfo->setDemocracy(true);
