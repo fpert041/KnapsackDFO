@@ -374,8 +374,8 @@ void Dfo_knap::adapt(float& newDt, float& targetDt, int& counter, double& wvsc, 
     if(tempfitness == fitness){
         counter ++;
     } else {
-        counter = floor(counter*0.1);
-        weightVsConstRatio = weightVsConstRatio >= wvsc*2 ? wvsc*2 : weightVsConstRatio + 0.005;
+        counter = 0;
+        weightVsConstRatio = weightVsConstRatio >= wvsc ? wvsc : weightVsConstRatio + 0.005;
     }
     
     // IMPORTANT WOW! FACTOR: THIS PART CHANGES DYNAMICALLY HOW THE ALGORITHM WORKS AND HOW THE FITNESS FUNCTION ASSESSES THE FITNESS REWARDS/PENALTIES --> In case the algorithm gets stuck, the equations are pushed "outside of the allowed parameters to explore the search space through "non acdeptable paths". This means that the fitness function starts to temporarily give less "penalty" to knapsacks that are filled above their limit. This allows the algorithm to "explore" more when it remains blocked for too long
