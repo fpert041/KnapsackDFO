@@ -63,7 +63,12 @@ Dfo_knap::Dfo_knap(vector<int>maxCap, vector<int> w, vector<vector<int>> c, int 
 //------------------------------------------------------------
 
 void Dfo_knap::setup(int popSize, DimensionalReduc r, int ftPerDim) {
-    counter2 = 0;
+    upperDtThreshold = 0.3; //**
+    lowRatioThreshold = 1; //**
+    reducingFactorForRatio = 0.9; //**
+    numNeighboursPerSide = 7; //**
+    dtDecreaseStep = 0.001; //**
+    weightVsConstRatioIncreaseStep = 0.005; //**
     
     iter = 0; // variable we will use to see how many times we called the fitness function
     
