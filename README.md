@@ -1,5 +1,5 @@
 # DB-DFO
-Dynamic Binary Dispersive Flies Optimisation implementation in C++
+Dynamic Binary Dispersive Flies Optimisation implemented in C++
 
 
 ### Copyright (C) 2017 Francesco Perticarari and Jasper Kirton-Wingate, with precious advice from Bashar Saade
