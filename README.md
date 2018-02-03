@@ -1,12 +1,12 @@
 # DB-DFO
 Dynamic Binary Dispersive Flies Optimisation implementation in C++
 
-### Original Algorithm: Copyright (C) 2014 Mohammad Majid al-Rifaie
-### Current C++ implementation and adaptation for the Knapsack problem: Copyright (C) 2017 Francesco Perticarari and Jasper Kirton-Wingate, with precious advice from Bashar Saade
+
+### Copyright (C) 2017 Francesco Perticarari and Jasper Kirton-Wingate, with precious advice from Bashar Saade
 
 #### License: This is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
 
-[link to the original paper](http://doc.gold.ac.uk/mohammad/DFO/)
+[link to the original paper by Mohammad Majid al-Rifaie](http://doc.gold.ac.uk/mohammad/DFO/)
 
 ## Results:
 
@@ -22,6 +22,12 @@ Dispersive Flies Optimisation Research (DFO) [1] is a swarm intelligence algorit
 The algorithm aims to exploit the emergent adaptive intelligence of the swarm to find an optimal solution to a given search problem. Its behaviour is inspired by the swarming behaviour of flies hovering over food sources and it has been shown to find optimal or “good enough” solutions [3] faster than randomness and of the standard versions of the well-known Particle Swarm Optimisation, Genetic Algorithm (GA) as well as Differential Evolution (DE) algorithms on an extended set of benchmarks over three performance measures of error, efficiency and reliability [4].
 
 The algorithm was first proposed by Mohammad Majid al-Rifaie, a computing lecturer at Goldsmiths, University of London, in his paper published in 2014. For a more detailed description, please see [this blog post](http://francescoperticarari.com/dispersive-flies-optimisation/) on my website.
+
+## DB-DFO
+
+The first modification we made, which optimised the algorithm for binary problems, was to constrain the flies positions from floating points values to whole values at the end of the update process.
+
+The next major step in our modification was to reduce the dimensionality of the problem for a number of iterations where we mapped 4 consecutive dimensions onto one number between 0 and 8. This in general reduces the complexity of the search space and allows for position updates for each agent that are not necessarily linear. This speeds up initial calculations, increases the influence of the dispersion threshold, and thus increases the exploration of the search space. We found that having the dimensionality reduction as an initial phase and then 'switching' back to binary vectors of 1s and 0s of dimensions, was much more effective in finding the Global Optima.
 
 #### Visualisation of the Algorithm in action:
 
