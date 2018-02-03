@@ -1,14 +1,18 @@
-# DFO
-Dispersive Flies Optimisation implementation in C++
+# DB-DFO
+Dynamic Binary Dispersive Flies Optimisation implementation in C++
 
 ### Original Algorithm: Copyright (C) 2014 Mohammad Majid al-Rifaie
-### Current C++ implementation and adaptation for the Knapsack problem: Copyright (C) 2017 Francesco Perticarari, Jasper Kirton-Wingate, Bashar Saade
+### Current C++ implementation and adaptation for the Knapsack problem: Copyright (C) 2017 Francesco Perticarari and Jasper Kirton-Wingate, with precious advice from Bashar Saade
 
 #### License: This is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
 
 [link to the original paper](http://doc.gold.ac.uk/mohammad/DFO/)
 
 ## Results:
+
+We've compared the results of our algorithm against benchmark standards as provided by previous refeence papers. In particular we have compared our results with those obtained by [Salman et alia](http://www.ijmlc.org/vol6/586-L043.pdf) and by [Lopez](https://link.springer.com/article/10.1007/s00500-017-2511-0)
+
+Below you can see a table that compares the results of our DB-DFO algorithm against its original version (DFO) and the current state of the art in both Swarm Intelligence (PSO-based algorithms) and Evolutionary Computation (DE-based algorithms).
 ![Alt text](dynamic-binary-dispersive.jpg?raw=true "Results")
 
 ## What is DFO?
